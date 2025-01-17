@@ -11,15 +11,14 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('milestones', function (Blueprint $table) {
+        Schema::create('tasks', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('goal_id')->constrained()->onDelete('cascade');
+            $table->foreignId('milestone_id')->constrained()->onDelete('cascade');
             $table->string('title');
             $table->text('description')->nullable();
-            $table->dateTime('due_date');
             $table->enum('status', ['pending', 'in_progress', 'completed'])->default('pending');
             $table->enum('priority', ['low', 'medium', 'high'])->default('medium');
-            $table->integer('progress_percentage')->default(0);
+            $table->dateTime('due_date')->nullable();
             $table->timestamps();
         });
     }
@@ -29,6 +28,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('milestones');
+        Schema::dropIfExists('tasks');
     }
 };

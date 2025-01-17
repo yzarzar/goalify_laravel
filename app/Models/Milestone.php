@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Milestone extends Model
 {
@@ -17,12 +18,12 @@ class Milestone extends Model
         'due_date',
         'status',
         'priority',
-        'completion_percentage'
+        'progress_percentage'
     ];
 
     protected $casts = [
         'due_date' => 'datetime',
-        'completion_percentage' => 'integer',
+        'progress_percentage' => 'integer',
     ];
 
     /**
@@ -31,5 +32,67 @@ class Milestone extends Model
     public function goal(): BelongsTo
     {
         return $this->belongsTo(Goal::class);
+    }
+
+    /**
+     * Get the tasks for the milestone.
+     */
+    public function tasks(): HasMany
+    {
+        return $this->hasMany(Task::class);
+    }
+
+    /**
+     * Update progress percentage based on completed milestones.
+     * Returns true if the progress was updated, false otherwise.
+     */
+    public function updateProgressFromTasks(): bool
+    {
+        $totalTasks = $this->tasks()->count();
+
+        // If there are no tasks, progress is 0%
+        if ($totalTasks === 0) {
+            return $this->updateProgress(0);
+        }
+
+        // Count completed tasks
+        $completedTasks = $this->tasks()
+            ->where('status', 'completed')
+            ->count();
+
+        // Calculate progress percentage
+        $progressPercentage = ($completedTasks / $totalTasks) * 100;
+
+        // Round to nearest integer
+        $progressPercentage = (int) round($progressPercentage);
+
+        return $this->updateProgress($progressPercentage);
+    }
+
+    /**
+     * Update the progress percentage if it has changed.
+     * Returns true if the progress was updated, false otherwise.
+     */
+    protected function updateProgress(int $newProgress): bool
+    {
+        if ($this->progress_percentage !== $newProgress) {
+            $this->progress_percentage = $newProgress;
+            $this->updateStatusFromProgress();
+            $this->save();
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * Update the status based on the current progress percentage
+     */
+    protected function updateStatusFromProgress(): void
+    {
+        $this->status = match(true) {
+            $this->progress_percentage === 0 => 'pending',
+            $this->progress_percentage === 100 => 'completed',
+            default => 'in_progress',
+        };
     }
 }

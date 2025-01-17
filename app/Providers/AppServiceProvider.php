@@ -2,7 +2,9 @@
 
 namespace App\Providers;
 
+use App\Models\Task;
 use App\Models\Milestone;
+use App\Observers\TaskObserver;
 use App\Observers\MilestoneObserver;
 use Illuminate\Support\ServiceProvider;
 
@@ -21,6 +23,7 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        Task::observe(TaskObserver::class);
         Milestone::observe(MilestoneObserver::class);
     }
 }
