@@ -13,6 +13,11 @@ class TaskObserver
     {
         if ($task->milestone) {
             $task->milestone->updateProgressFromTasks();
+            
+            // Update parent goal's progress
+            if ($task->milestone->goal) {
+                $task->milestone->goal->updateProgressFromMilestones();
+            }
         }
     }
 
@@ -24,6 +29,11 @@ class TaskObserver
         // Only update progress if status has changed
         if ($task->isDirty('status') && $task->milestone) {
             $task->milestone->updateProgressFromTasks();
+            
+            // Update parent goal's progress
+            if ($task->milestone->goal) {
+                $task->milestone->goal->updateProgressFromMilestones();
+            }
         }
     }
 
@@ -34,6 +44,11 @@ class TaskObserver
     {
         if ($task->milestone) {
             $task->milestone->updateProgressFromTasks();
+            
+            // Update parent goal's progress
+            if ($task->milestone->goal) {
+                $task->milestone->goal->updateProgressFromMilestones();
+            }
         }
     }
 }

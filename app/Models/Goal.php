@@ -70,22 +70,69 @@ class Goal extends Model
     }
 
     /**
-     * Update progress percentage based on task completion.
+     * Get milestones without tasks
+     */
+    protected function getStandaloneMilestones()
+    {
+        return $this->milestones()
+            ->whereDoesntHave('tasks')
+            ->get();
+    }
+
+    /**
+     * Get milestones with tasks
+     */
+    protected function getTaskBasedMilestones()
+    {
+        return $this->milestones()
+            ->has('tasks')
+            ->withCount('tasks')
+            ->get();
+    }
+
+    /**
+     * Update progress percentage based on both task completion and standalone milestones.
      * Returns true if the progress was updated, false otherwise.
      */
     public function updateProgressFromMilestones(): bool
     {
-        $totalTasks = $this->getTotalTasksCount();
-
-        // If there are no tasks, progress is 0%
-        if ($totalTasks === 0) {
+        $taskBasedMilestones = $this->getTaskBasedMilestones();
+        $standaloneMilestones = $this->getStandaloneMilestones();
+        
+        $totalWeight = 0;
+        $completedWeight = 0;
+        
+        // Calculate progress from task-based milestones
+        foreach ($taskBasedMilestones as $milestone) {
+            $totalTasks = $milestone->tasks_count;
+            $completedTasks = $milestone->tasks()
+                ->where('status', 'completed')
+                ->count();
+                
+            $totalWeight += $totalTasks;
+            $completedWeight += $completedTasks;
+        }
+        
+        // Add standalone milestones to the calculation
+        $totalStandalone = $standaloneMilestones->count();
+        if ($totalStandalone > 0) {
+            $completedStandalone = $standaloneMilestones
+                ->where('status', 'completed')
+                ->count();
+                
+            // Each standalone milestone has a weight of 1
+            $totalWeight += $totalStandalone;
+            $completedWeight += $completedStandalone;
+        }
+        
+        // If there are no items to track progress
+        if ($totalWeight === 0) {
             return $this->updateProgress(0.0);
         }
-
-        // Calculate progress based on completed tasks
-        $completedTasks = $this->getCompletedTasksCount();
-        $progressPercentage = ($completedTasks / $totalTasks) * 100;
-
+        
+        // Calculate overall progress percentage
+        $progressPercentage = ($completedWeight / $totalWeight) * 100;
+        
         return $this->updateProgress($progressPercentage);
     }
 

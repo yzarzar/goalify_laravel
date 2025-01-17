@@ -104,8 +104,14 @@ class MilestoneController extends BaseController
                 return $this->sendNotFound('Milestone not found for this goal');
             }
 
-            // Get the old status before update
-            $oldStatus = $milestone->status;
+            // Check if trying to update status when milestone has tasks
+            if ($request->has('status') && $milestone->hasAssociatedTasks()) {
+                return $this->sendError(
+                    'Status cannot be manually updated when milestone has tasks',
+                    ['status' => ['Status is automatically determined by task completion']],
+                    422
+                );
+            }
 
             // Update the milestone
             $milestone->update($request->validated());
