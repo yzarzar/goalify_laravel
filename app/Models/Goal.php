@@ -22,7 +22,7 @@ class Goal extends Model
     protected $casts = [
         'start_date' => 'date',
         'end_date' => 'date',
-        'progress_percentage' => 'integer'
+        'progress_percentage' => 'float'
     ];
 
     /**
@@ -42,28 +42,49 @@ class Goal extends Model
     }
 
     /**
-     * Update progress percentage based on completed milestones.
+     * Calculate total tasks across all milestones
+     */
+    protected function getTotalTasksCount(): int
+    {
+        return $this->milestones()
+            ->withCount('tasks')
+            ->get()
+            ->sum('tasks_count');
+    }
+
+    /**
+     * Calculate completed tasks across all milestones
+     */
+    protected function getCompletedTasksCount(): int
+    {
+        $completedTasks = 0;
+        $milestones = $this->milestones()->with('tasks')->get();
+        
+        foreach ($milestones as $milestone) {
+            $completedTasks += $milestone->tasks()
+                ->where('status', 'completed')
+                ->count();
+        }
+        
+        return $completedTasks;
+    }
+
+    /**
+     * Update progress percentage based on task completion.
      * Returns true if the progress was updated, false otherwise.
      */
     public function updateProgressFromMilestones(): bool
     {
-        $totalMilestones = $this->milestones()->count();
+        $totalTasks = $this->getTotalTasksCount();
 
-        // If there are no milestones, progress is 0%
-        if ($totalMilestones === 0) {
-            return $this->updateProgress(0);
+        // If there are no tasks, progress is 0%
+        if ($totalTasks === 0) {
+            return $this->updateProgress(0.0);
         }
 
-        // Count completed milestones
-        $completedMilestones = $this->milestones()
-            ->where('status', 'completed')
-            ->count();
-
-        // Calculate progress percentage
-        $progressPercentage = ($completedMilestones / $totalMilestones) * 100;
-
-        // Round to nearest integer
-        $progressPercentage = (int) round($progressPercentage);
+        // Calculate progress based on completed tasks
+        $completedTasks = $this->getCompletedTasksCount();
+        $progressPercentage = ($completedTasks / $totalTasks) * 100;
 
         return $this->updateProgress($progressPercentage);
     }
@@ -72,9 +93,9 @@ class Goal extends Model
      * Update the progress percentage if it has changed.
      * Returns true if the progress was updated, false otherwise.
      */
-    protected function updateProgress(int $newProgress): bool
+    protected function updateProgress(float $newProgress): bool
     {
-        if ($this->progress_percentage !== $newProgress) {
+        if (abs($this->progress_percentage - $newProgress) > 0.001) {
             $this->progress_percentage = $newProgress;
             $this->updateStatusFromProgress();
             $this->save();
@@ -89,9 +110,9 @@ class Goal extends Model
     protected function updateStatusFromProgress(): void
     {
         $this->status = match(true) {
-            $this->progress_percentage === 0 => 'pending',
-            $this->progress_percentage === 100 => 'completed',
-            default => 'in progress',
+            $this->progress_percentage < 0.1 => 'pending',
+            $this->progress_percentage >= 99.9 => 'completed',
+            default => 'in_progress',
         };
     }
 }
