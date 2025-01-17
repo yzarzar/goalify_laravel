@@ -27,7 +27,7 @@ class StoreMilestoneRequest extends FormRequest
             'due_date' => ['required', 'date', 'after:today'],
             'status' => ['nullable', 'in:pending,in_progress,completed'],
             'priority' => ['required', 'in:low,medium,high'],
-            'completion_percentage' => ['required', 'integer', 'min:0', 'max:100'],
+            'progress_percentage' => ['nullable', 'integer', 'min:0', 'max:100'],
         ];
     }
 
@@ -40,8 +40,8 @@ class StoreMilestoneRequest extends FormRequest
     {
         return [
             'due_date.after' => 'The due date must be a future date.',
-            'completion_percentage.min' => 'The completion percentage must be at least 0.',
-            'completion_percentage.max' => 'The completion percentage cannot be greater than 100.',
+            'progress_percentage.min' => 'The progress percentage must be at least 0.',
+            'progress_percentage.max' => 'The progress percentage cannot be greater than 100.',
         ];
     }
 }
