@@ -26,6 +26,9 @@ class GoalResource extends JsonResource
             'user_id' => $this->user_id,
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,
+            'milestone_count' => $this->whenLoaded('milestones', function() {
+                return $this->milestones->count();
+            }),
         ];
     }
 }

@@ -229,7 +229,7 @@ class GoalController extends BaseController
     public function getAllGoals(Request $request): JsonResponse
     {
         try {
-            $query = JWTAuth::user()->goals();
+            $query = JWTAuth::user()->goals()->with(['milestones.tasks']);
 
             // Apply search if provided
             if ($request->has('search')) {
