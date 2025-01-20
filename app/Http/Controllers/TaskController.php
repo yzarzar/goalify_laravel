@@ -38,7 +38,7 @@ class TaskController extends BaseController
      */
     public function store(StoreTaskRequest $request, int $milestone_id): JsonResponse
     {
-        $milestone = Milestone::find($milestone_id);
+        $milestone = Milestone::with('goal')->find($milestone_id);
 
         if (!$milestone) {
             return $this->sendNotFound('Milestone not found');
@@ -46,6 +46,27 @@ class TaskController extends BaseController
 
         try {
             $validated = $request->validated();
+            
+            if (isset($validated['due_date'])) {
+                // Validate that task due date is not earlier than goal start date
+                if ($validated['due_date'] < $milestone->goal->start_date) {
+                    return $this->sendError(
+                        'Invalid due date',
+                        ['due_date' => ['Task due date cannot be earlier than the goal start date (' . $milestone->goal->start_date . ')']],
+                        422
+                    );
+                }
+
+                // Validate that task due date is not later than milestone due date
+                if ($validated['due_date'] > $milestone->due_date) {
+                    return $this->sendError(
+                        'Invalid due date',
+                        ['due_date' => ['Task due date cannot be later than the milestone due date (' . $milestone->due_date . ')']],
+                        422
+                    );
+                }
+            }
+
             $task = $milestone->tasks()->create([
                 'title' => $validated['title'],
                 'description' => $validated['description'] ?? null,
@@ -83,18 +104,37 @@ class TaskController extends BaseController
     {
         $task = Task::where('milestone_id', $milestone_id)
             ->where('id', $task_id)
+            ->with('milestone.goal')
             ->first();
-
-        if (!Milestone::find($milestone_id)) {
-            return $this->sendNotFound('Milestone not found');
-        }
 
         if (!$task) {
             return $this->sendNotFound('Task not found in this milestone');
         }
 
         try {
-            $task->update($request->validated());
+            $validated = $request->validated();
+            
+            if (isset($validated['due_date'])) {
+                // Validate that task due date is not earlier than goal start date
+                if ($validated['due_date'] < $task->milestone->goal->start_date) {
+                    return $this->sendError(
+                        'Invalid due date',
+                        ['due_date' => ['Task due date cannot be earlier than the goal start date (' . $task->milestone->goal->start_date . ')']],
+                        422
+                    );
+                }
+
+                // Validate that task due date is not later than milestone due date
+                if ($validated['due_date'] > $task->milestone->due_date) {
+                    return $this->sendError(
+                        'Invalid due date',
+                        ['due_date' => ['Task due date cannot be later than the milestone due date (' . $task->milestone->due_date . ')']],
+                        422
+                    );
+                }
+            }
+
+            $task->update($validated);
             return $this->sendSuccess(new TaskResource($task->load('milestone')));
         } catch (\Throwable $th) {
             return $this->sendServerError('Failed to update task', [], [], $th);
@@ -109,10 +149,6 @@ class TaskController extends BaseController
         $task = Task::where('milestone_id', $milestone_id)
             ->where('id', $task_id)
             ->first();
-
-        if (!Milestone::find($milestone_id)) {
-            return $this->sendNotFound('Milestone not found');
-        }
 
         if (!$task) {
             return $this->sendNotFound('Task not found in this milestone');

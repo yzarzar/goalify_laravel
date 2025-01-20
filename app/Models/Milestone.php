@@ -43,6 +43,14 @@ class Milestone extends Model
     }
 
     /**
+     * Check if the milestone has any associated tasks
+     */
+    public function hasAssociatedTasks(): bool
+    {
+        return $this->tasks()->exists();
+    }
+
+    /**
      * Update progress percentage based on completed milestones.
      * Returns true if the progress was updated, false otherwise.
      */

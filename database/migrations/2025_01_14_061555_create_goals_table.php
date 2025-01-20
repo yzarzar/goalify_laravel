@@ -15,10 +15,11 @@ return new class extends Migration
             $table->id();
             $table->foreignId('user_id')->constrained()->onDelete('cascade');
             $table->string('title');
-            $table->text('description');
+            $table->text('description')->nullable();
             $table->date('start_date');
             $table->date('end_date');
-            $table->enum('status', ['pending', 'in progress', 'completed'])->default('pending');
+            $table->enum('status', ['pending', 'in_progress', 'completed'])->default('pending');
+            $table->decimal('progress_percentage', 4, 1)->default(0.0);
             $table->enum('priority', ['low', 'medium', 'high'])->default('medium');
             $table->timestamps();
         });
