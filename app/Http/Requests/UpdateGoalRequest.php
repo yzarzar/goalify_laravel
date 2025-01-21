@@ -27,7 +27,7 @@ class UpdateGoalRequest extends FormRequest
             'start_date' => 'sometimes|required|date',
             'end_date' => 'sometimes|required|date|after_or_equal:start_date',
             'priority' => 'sometimes|required|in:low,medium,high',
-            'status' => 'sometimes|required|in:pending,in progress,completed',
+            'status' => 'sometimes|required|in:pending,in_progress,completed',
             'progress_percentage' => 'sometimes|required|integer|min:0|max:100'
         ];
     }
@@ -45,7 +45,7 @@ class UpdateGoalRequest extends FormRequest
             'end_date.date' => 'End date must be a valid date',
             'end_date.after_or_equal' => 'End date must be after or equal to start date',
             'priority.in' => 'Priority must be either low, medium, or high',
-            'status.in' => 'Status must be either pending, in progress, or completed',
+            'status.in' => 'Status must be either pending, in_progress, or completed',
             'progress_percentage.min' => 'The progress percentage must be at least 0.',
             'progress_percentage.max' => 'The progress percentage cannot be greater than 100.'
         ];

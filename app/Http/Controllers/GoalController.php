@@ -24,7 +24,7 @@ class GoalController extends BaseController
     public function index(Request $request): JsonResponse
     {
         try {
-            $query = JWTAuth::user()->goals();
+            $query = JWTAuth::user()->goals()->with(['milestones']);
 
             // Apply filters if provided
             if ($request->has('status')) {
@@ -229,7 +229,7 @@ class GoalController extends BaseController
     public function getAllGoals(Request $request): JsonResponse
     {
         try {
-            $query = JWTAuth::user()->goals();
+            $query = JWTAuth::user()->goals()->with(['milestones']);
 
             // Apply search if provided
             if ($request->has('search')) {

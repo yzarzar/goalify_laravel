@@ -25,6 +25,10 @@ class MilestoneResource extends JsonResource
             'progress_percentage' => $this->progress_percentage,
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,
+            'task_count' => $this->whenLoaded('tasks', function() {
+                return $this->tasks->count();
+            }),
+            'tasks' => TaskResource::collection($this->whenLoaded('tasks')),
         ];
     }
 }

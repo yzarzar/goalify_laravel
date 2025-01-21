@@ -6,6 +6,7 @@ use App\Http\Requests\StoreMilestoneRequest;
 use App\Http\Requests\UpdateMilestoneRequest;
 use App\Models\Goal;
 use App\Models\Milestone;
+use App\Http\Resources\MilestoneResource;
 use Illuminate\Http\JsonResponse;
 use Throwable;
 
@@ -24,10 +25,13 @@ class MilestoneController extends BaseController
 
         try {
             $milestones = $goal->milestones()
+                ->with('tasks')
                 ->orderBy('due_date')
                 ->get();
 
-            return $this->sendCollection($milestones);
+            return $this->sendSuccess([
+                'milestones' => MilestoneResource::collection($milestones)
+            ]);
         } catch (Throwable $e) {
             return $this->sendServerError('Failed to retrieve milestones', [], [], $e);
         }
@@ -73,7 +77,7 @@ class MilestoneController extends BaseController
     {
         try {
             $goal = Goal::find($goal_id);
-            $milestone = Milestone::find($milestone_id);
+            $milestone = Milestone::with('tasks')->find($milestone_id);
 
             if (!$goal) {
                 return $this->sendNotFound('Goal not found');
@@ -87,7 +91,9 @@ class MilestoneController extends BaseController
                 return $this->sendNotFound('Milestone not found for this goal');
             }
 
-            return $this->sendSuccess($milestone);
+            return $this->sendSuccess([
+                'milestone' => new MilestoneResource($milestone)
+            ]);
         } catch (Throwable $e) {
             return $this->sendServerError('Failed to retrieve milestone', [], [], $e);
         }

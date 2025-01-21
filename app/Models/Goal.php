@@ -162,4 +162,62 @@ class Goal extends Model
             default => 'in_progress',
         };
     }
+
+    /**
+     * Get total tasks count
+     */
+    public function getTotalTasksAttribute(): int
+    {
+        return $this->milestones()
+            ->withCount('tasks')
+            ->get()
+            ->sum('tasks_count');
+    }
+
+    /**
+     * Get completed tasks count
+     */
+    public function getCompletedTasksAttribute(): int
+    {
+        return $this->milestones()
+            ->withCount(['tasks' => function ($query) {
+                $query->where('status', 'completed');
+            }])
+            ->get()
+            ->sum('tasks_count');
+    }
+
+    /**
+     * Get in-progress tasks count
+     */
+    public function getInProgressTasksAttribute(): int
+    {
+        return $this->total_tasks - $this->completed_tasks;
+    }
+
+    /**
+     * Get total milestones count
+     */
+    public function getTotalMilestonesAttribute(): int
+    {
+        return $this->milestones()->count();
+    }
+
+    /**
+     * Get completed milestones count
+     */
+    public function getCompletedMilestonesAttribute(): int
+    {
+        return $this->milestones()
+            ->where('status', 'completed')
+            ->count();
+    }
+
+    /**
+     * Get in-progress milestones count
+     */
+    public function getInProgressMilestonesAttribute(): int
+    {
+        return $this->total_milestones - $this->completed_milestones;
+    }
 }
