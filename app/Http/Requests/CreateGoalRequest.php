@@ -24,7 +24,7 @@ class CreateGoalRequest extends FormRequest
         return [
             'title' => 'required|string|max:255',
             'description' => 'required|string',
-            'start_date' => 'required|date|after:today',
+            'start_date' => 'required|date|after_or_equal:today',
             'end_date' => 'required|date|after_or_equal:start_date',
             'priority' => 'required|in:low,medium,high',
             'status' => 'nullable|in:pending,in_progress,completed'
@@ -44,7 +44,7 @@ class CreateGoalRequest extends FormRequest
             'description.required' => 'A goal description is required',
             'start_date.required' => 'Start date is required',
             'start_date.date' => 'Start date must be a valid date',
-            'start_date.after' => 'Start date must be a future date',
+            'start_date.after_or_equal' => 'Start date must be after or equal to today',
             'end_date.required' => 'End date is required',
             'end_date.date' => 'End date must be a valid date',
             'end_date.after_or_equal' => 'End date must be after or equal to start date',
