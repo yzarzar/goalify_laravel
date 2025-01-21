@@ -122,14 +122,11 @@ class MilestoneController extends BaseController
 
             // Check if trying to update status when milestone has tasks
             if ($request->has('status') && $milestone->hasAssociatedTasks()) {
-                // Allow status update if setting to completed
-                if (!($request->input('status') === 'completed')) {
-                    return $this->sendError(
-                        'Status cannot be manually updated when milestone has tasks',
-                        ['status' => ['Status is automatically determined by task completion']],
-                        422
-                    );
-                }
+                return $this->sendError(
+                    'Status cannot be manually updated when milestone has tasks',
+                    ['status' => ['Status is automatically determined by task completion']],
+                    422
+                );
             }
 
             // Validate due date is within goal's date range if it's being updated
