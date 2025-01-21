@@ -29,6 +29,18 @@ class GoalResource extends JsonResource
             'milestone_count' => $this->whenLoaded('milestones', function() {
                 return $this->milestones->count();
             }),
+            // Task Statistics
+            'task_stats' => [
+                'total' => $this->total_tasks,
+                'completed' => $this->completed_tasks,
+                'in_progress' => $this->in_progress_tasks,
+            ],
+            // Milestone Statistics
+            'milestone_stats' => [
+                'total' => $this->total_milestones,
+                'completed' => $this->completed_milestones,
+                'in_progress' => $this->in_progress_milestones,
+            ],
         ];
     }
 }

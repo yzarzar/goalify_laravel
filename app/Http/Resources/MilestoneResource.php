@@ -28,6 +28,7 @@ class MilestoneResource extends JsonResource
             'task_count' => $this->whenLoaded('tasks', function() {
                 return $this->tasks->count();
             }),
+            'tasks' => TaskResource::collection($this->whenLoaded('tasks')),
         ];
     }
 }
