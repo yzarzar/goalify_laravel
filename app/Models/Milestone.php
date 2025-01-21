@@ -105,13 +105,15 @@ class Milestone extends Model
     }
 
     /**
-     * Set the status attribute and update progress_percentage if status is completed
+     * Set the status attribute and update progress_percentage based on status
      */
     public function setStatusAttribute($value)
     {
         $this->attributes['status'] = $value;
         if ($value === 'completed') {
             $this->attributes['progress_percentage'] = 100;
+        } elseif ($value === 'pending') {
+            $this->attributes['progress_percentage'] = 0;
         }
     }
 }
