@@ -109,10 +109,14 @@ class Milestone extends Model
      */
     public function setStatusAttribute($value)
     {
+        $totalTasks = $this->tasks()->count();
         $this->attributes['status'] = $value;
         if ($value === 'completed') {
             $this->attributes['progress_percentage'] = 100;
         } elseif ($value === 'pending') {
+            $this->attributes['progress_percentage'] = 0;
+        }
+        if($value === 'in_progress' && $totalTasks === 0){
             $this->attributes['progress_percentage'] = 0;
         }
     }
