@@ -98,7 +98,7 @@ class Milestone extends Model
     protected function updateStatusFromProgress(): void
     {
         $this->status = match(true) {
-            $this->progress_percentage === 0 => 'pending',
+            $this->progress_percentage === 0 => 'in_progress',
             $this->progress_percentage === 100 => 'completed',
             default => 'in_progress',
         };

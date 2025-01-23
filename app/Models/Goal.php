@@ -157,7 +157,7 @@ class Goal extends Model
     protected function updateStatusFromProgress(): void
     {
         $this->status = match(true) {
-            $this->progress_percentage < 0.1 => 'pending',
+            $this->progress_percentage < 0.1 => 'in_progress',
             $this->progress_percentage >= 99.9 => 'completed',
             default => 'in_progress',
         };
