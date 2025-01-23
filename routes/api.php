@@ -34,6 +34,7 @@ Route::middleware('auth:api')->group(function () {
     Route::get('goals/{goal_id}/milestones/{milestone_id}', [MilestoneController::class, 'show']);
     Route::put('goals/{goal_id}/milestones/{milestone_id}', [MilestoneController::class, 'update']);
     Route::delete('goals/{goal_id}/milestones/{milestone_id}', [MilestoneController::class, 'destroy']);
+    Route::get('milestones/all', [MilestoneController::class, 'all']);
 
     // Tasks for Milestones
     Route::get('milestones/{milestone_id}/tasks', [TaskController::class, 'index'])->name('tasks.index');
@@ -41,4 +42,5 @@ Route::middleware('auth:api')->group(function () {
     Route::get('milestones/{milestone_id}/tasks/{task_id}', [TaskController::class, 'show'])->name('tasks.show');
     Route::put('milestones/{milestone_id}/tasks/{task_id}', [TaskController::class, 'update'])->name('tasks.update');
     Route::delete('milestones/{milestone_id}/tasks/{task_id}', [TaskController::class, 'destroy'])->name('tasks.destroy');
+    Route::get('tasks/all', [TaskController::class, 'all'])->name('tasks.all');
 });
