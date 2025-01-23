@@ -34,6 +34,20 @@ class TaskController extends BaseController
     }
 
     /**
+     * Display a listing of all tasks.
+     */
+    public function all(): JsonResponse
+    {
+        try {
+            $tasks = Task::orderBy('due_date')->get();
+            return $this->sendSuccess(
+                ["tasks" => TaskResource::collection($tasks)]
+            );        } catch (\Throwable $th) {
+            return $this->sendServerError('Failed to retrieve tasks', [], [], $th);
+        }
+    }
+
+    /**
      * Store a newly created task in storage.
      */
     public function store(StoreTaskRequest $request, int $milestone_id): JsonResponse
@@ -46,7 +60,7 @@ class TaskController extends BaseController
 
         try {
             $validated = $request->validated();
-            
+
             if (isset($validated['due_date'])) {
                 // Validate that task due date is not earlier than goal start date
                 if ($validated['due_date'] < $milestone->goal->start_date) {
@@ -113,7 +127,7 @@ class TaskController extends BaseController
 
         try {
             $validated = $request->validated();
-            
+
             if (isset($validated['due_date'])) {
                 // Validate that task due date is not earlier than goal start date
                 if ($validated['due_date'] < $task->milestone->goal->start_date) {
