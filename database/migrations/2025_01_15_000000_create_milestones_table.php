@@ -17,7 +17,7 @@ return new class extends Migration
             $table->string('title');
             $table->text('description')->nullable();
             $table->dateTime('due_date');
-            $table->enum('status', ['pending', 'in_progress', 'completed'])->default('pending');
+            $table->enum('status', ['pending', 'in_progress', 'completed'])->default('in_progress');
             $table->enum('priority', ['low', 'medium', 'high'])->default('medium');
             $table->integer('progress_percentage')->default(0);
             $table->timestamps();

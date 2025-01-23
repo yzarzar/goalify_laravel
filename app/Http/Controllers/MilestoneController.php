@@ -38,6 +38,24 @@ class MilestoneController extends BaseController
     }
 
     /**
+     * Display a listing of all milestones.
+     */
+    public function all(): JsonResponse
+    {
+        try {
+            $milestones = Milestone::with('tasks')
+                ->orderBy('due_date')
+                ->get();
+
+            return $this->sendSuccess(
+                ["milestones" => MilestoneResource::collection($milestones)]
+            );
+        } catch (Throwable $e) {
+            return $this->sendServerError('Failed to retrieve milestones', [], [], $e);
+        }
+    }
+
+    /**
      * Store a newly created milestone in storage.
      */
     public function store(StoreMilestoneRequest $request, int $goal_id): JsonResponse

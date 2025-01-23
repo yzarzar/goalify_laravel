@@ -24,7 +24,7 @@ class UpdateMilestoneRequest extends FormRequest
         return [
             'title' => ['sometimes', 'required', 'string', 'max:255'],
             'description' => ['nullable', 'string'],
-            'due_date' => ['sometimes', 'required', 'date', 'after:today'],
+            'due_date' => ['sometimes', 'required', 'date', 'after_or_equal:today'],
             'status' => ['sometimes', 'required', 'in:pending,in_progress,completed'],
             'priority' => ['sometimes', 'required', 'in:low,medium,high'],
             'completion_percentage' => ['sometimes', 'required', 'integer', 'min:0', 'max:100'],
@@ -39,7 +39,7 @@ class UpdateMilestoneRequest extends FormRequest
     public function messages(): array
     {
         return [
-            'due_date.after' => 'The due date must be a future date.',
+            'due_date.after_or_equal' => 'The due date must be after or equal to today.',
             'completion_percentage.min' => 'The completion percentage must be at least 0.',
             'completion_percentage.max' => 'The completion percentage cannot be greater than 100.',
         ];

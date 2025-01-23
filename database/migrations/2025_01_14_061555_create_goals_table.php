@@ -18,7 +18,7 @@ return new class extends Migration
             $table->text('description')->nullable();
             $table->date('start_date');
             $table->date('end_date');
-            $table->enum('status', ['pending', 'in_progress', 'completed'])->default('pending');
+            $table->enum('status', ['pending', 'in_progress', 'completed'])->default('in_progress');
             $table->decimal('progress_percentage', 4, 1)->default(0.0);
             $table->enum('priority', ['low', 'medium', 'high'])->default('medium');
             $table->timestamps();

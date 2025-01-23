@@ -16,7 +16,7 @@ return new class extends Migration
             $table->foreignId('milestone_id')->constrained()->onDelete('cascade');
             $table->string('title');
             $table->text('description')->nullable();
-            $table->enum('status', ['pending', 'in_progress', 'completed'])->default('pending');
+            $table->enum('status', ['pending', 'in_progress', 'completed'])->default('in_progress');
             $table->enum('priority', ['low', 'medium', 'high'])->default('medium');
             $table->dateTime('due_date')->nullable();
             $table->timestamps();
